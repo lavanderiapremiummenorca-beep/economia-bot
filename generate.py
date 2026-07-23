@@ -18,8 +18,9 @@ os.makedirs(OUTPUT, exist_ok=True)
 
 TTS_ENGINE = os.environ.get("TTS_ENGINE", "espeak")
 EDGE_VOICE = os.environ.get("EDGE_VOICE", "es-ES-AlvaroNeural")
-GAP = 0.07          # silencio entre frases (s) — ritmo ágil
+GAP = 0.07          # (ya no se usa; voz continua)
 FONT = "DejaVu Sans"
+HANDLE = os.environ.get("CHANNEL_HANDLE", "").strip()  # tu marca en pantalla (vacío = sin marca)
 
 def run(cmd):
     r = subprocess.run(cmd, capture_output=True, text=True)
@@ -36,7 +37,8 @@ def dur_of(path):
 # ---------- TTS ----------
 def synth_espeak(text, out_wav):
     tmp = out_wav + ".raw.wav"
-    run(["espeak-ng","-v","es","-s","166","-p","38","-w",tmp,text])
+    spd = os.environ.get("ESPEAK_SPEED", "150")
+    run(["espeak-ng","-v","es","-s",spd,"-p","38","-w",tmp,text])
     run(["ffmpeg","-y","-loglevel","error","-i",tmp,"-ar","44100","-ac","2",out_wav])
     os.remove(tmp)
 
@@ -44,7 +46,7 @@ def synth_edge(text, out_wav):
     import edge_tts
     tmp_mp3 = out_wav + ".mp3"
     async def _go():
-        c = edge_tts.Communicate(text, EDGE_VOICE, rate="+12%")
+        c = edge_tts.Communicate(text, EDGE_VOICE, rate=os.environ.get("EDGE_RATE", "+0%"))
         await c.save(tmp_mp3)
     asyncio.run(_go())
     run(["ffmpeg","-y","-loglevel","error","-i",tmp_mp3,"-ar","44100","-ac","2",out_wav])
@@ -92,9 +94,16 @@ def cap_word_events(cap, st, en, words_per_line=3):
                 toks.append("\\N")
             wtxt = esc(w.upper())
             if j == i:
-                toks.append("{\\c" + HL + "\\fscx116\\fscy116}" + wtxt + "{\\c" + WHITE + "\\fscx100\\fscy100}")
+                # palabra activa: salta (pop con escala) y se resalta en color
+                toks.append("{\\c" + HL + "\\fscx86\\fscy86\\t(0,110,\\fscx122\\fscy122)"
+                            "\\t(110,220,\\fscx108\\fscy108)}" + wtxt
+                            + "{\\c" + WHITE + "\\fscx100\\fscy100}")
+            elif j < i:
+                # ya dicha: blanca, ligeramente mayor
+                toks.append("{\\fscx104\\fscy104}" + wtxt + "{\\fscx100\\fscy100}")
             else:
-                toks.append(wtxt)
+                # por venir: tenue, para guiar la vista
+                toks.append("{\\alpha&H66&}" + wtxt + "{\\alpha&H00&}")
         # unir con espacios pero sin espacio extra tras un salto de línea
         s = ""
         for k, tk in enumerate(toks):
@@ -106,7 +115,7 @@ def cap_word_events(cap, st, en, words_per_line=3):
         evts.append((ws, we, fad + s))
     return evts
 
-def build_ass(events, path):
+def build_ass(events, path, handle=None, total=0.0):
     # events: list of (start, end, caption_text, hidden)
     header = f"""[Script Info]
 ScriptType: v4.00+
@@ -118,11 +127,14 @@ ScaledBorderAndShadow: yes
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Main,{FONT},80,&H00FFFFFF,&H00FFFFFF,&H00000000,&H90000000,-1,0,0,0,100,100,1,0,1,6,3,2,80,80,720,1
+Style: Brand,{FONT},42,&H50FFFFFF,&H50FFFFFF,&H90000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,8,40,40,80,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     lines = [header]
+    if handle and total > 0:
+        lines.append(f"Dialogue: 0,{ass_time(0)},{ass_time(total)},Brand,,0,0,0,,{esc(handle)}")
     for (st, en, cap, hidden) in events:
         if hidden or not cap.strip():
             continue
@@ -175,27 +187,59 @@ def _gather_clips(script, workdir):
     return _pexels_clips(script.get("broll"), 8, workdir)
 
 def _norm_clip(src, dur, out):
+    # recorte a vertical + push-in suave (zoom que da movimiento y "punch" en cada corte)
+    vf = ("scale=1188:2112:force_original_aspect_ratio=increase,crop=1188:2112,"
+          "zoompan=z='min(1.02+0.0011*in,1.16)':d=1:"
+          "x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920:fps=30,setsar=1")
     run(["ffmpeg","-y","-loglevel","error","-stream_loop","-1","-t",f"{dur:.2f}","-i",src,
-         "-vf","scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30,setsar=1",
-         "-an","-c:v","libx264","-preset","veryfast","-crf","23","-pix_fmt","yuv420p", out])
+         "-vf",vf,"-an","-c:v","libx264","-preset","veryfast","-crf","23","-pix_fmt","yuv420p", out])
 
-def build_background(script, total, workdir):
-    """Fondo dinámico: varios clips reales que se van alternando. None si no hay."""
-    srcs = _gather_clips(script, workdir)
+def _groups(nlines, n):
+    """Reparte n líneas en n grupos contiguos lo más iguales posible."""
+    n = max(1, min(n, nlines))
+    base, extra, idx, gs = nlines // n, nlines % n, 0, []
+    for k in range(n):
+        cnt = base + (1 if k < extra else 0)
+        gs.append(list(range(idx, idx + cnt)))
+        idx += cnt
+    return [g for g in gs if g]
+
+def build_background(script, total, workdir, spans):
+    """Fondo dinámico: un clip real por IDEA, con push-in. None si no hay clips."""
+    # fuentes: si el guion trae broll_list (una consulta por idea), un clip por consulta
+    srcs = []
+    blist = script.get("broll_list")
+    if blist and os.environ.get("PEXELS_API_KEY") and not os.environ.get("LOCAL_BROLL_DIR"):
+        for q in blist:
+            cs = _pexels_clips(q, 1, workdir)
+            if cs:
+                srcs.append(cs[0])
+    if not srcs:
+        srcs = _gather_clips(script, workdir)
     if not srcs:
         return None
-    n = max(1, min(len(srcs), int(round(total / 4.0)) or 1))   # un clip cada ~4 s
+
+    nlines = len(spans)
+    n = max(1, min(len(srcs), int(round(total / 4.0)) or 1, nlines))
     srcs = srcs[:n]
-    segdur = total / n
+    groups = _groups(nlines, n)
+    n = len(groups)
+    srcs = srcs[:n]
+
     segs = []
-    for i, src in enumerate(srcs):
-        out = os.path.join(workdir, f"bgseg_{i}.mp4")
+    for k, g in enumerate(groups):
+        if k >= len(srcs):
+            break
+        start = spans[g[0]][0]
+        end = total if k == len(groups) - 1 else spans[groups[k + 1][0]][0]
+        dur = max(0.8, end - start)
+        out = os.path.join(workdir, f"bgseg_{k}.mp4")
         try:
-            _norm_clip(src, segdur + 0.1, out)
+            _norm_clip(srcs[k], dur + 0.1, out)
             if os.path.getsize(out) > 5000:
                 segs.append(out)
         except Exception as e:
-            sys.stderr.write(f"[bg] clip {i} no sirvió ({e})\n")
+            sys.stderr.write(f"[bg] clip {k} no sirvió ({e})\n")
     if not segs:
         return None
     lst = os.path.join(workdir, "bglist.txt")
@@ -210,21 +254,23 @@ def build_background(script, total, workdir):
         sys.stderr.write(f"[bg] concat falló ({e})\n")
         return None
 
-# ---------- Audio (voz continua, fluida) ----------
+# ---------- Audio (frase a frase, sin silencios = sincronía EXACTA y fluida) ----------
 def build_audio(lines, workdir):
-    text = " ".join(l["voice"].strip() for l in lines if l.get("voice"))
-    wav = os.path.join(workdir, "full.wav")
-    synth(text, wav)                       # una sola locución = fluida
-    total = dur_of(wav)
-    weights = [max(3, len(l.get("voice", ""))) for l in lines]
-    tot = sum(weights) or 1
-    spans = []; t = 0.0
-    for w in weights:
-        d = total * w / tot
+    parts = []; spans = []; t = 0.0
+    for i, ln in enumerate(lines):
+        w = os.path.join(workdir, f"seg{i:02d}.wav")
+        synth(ln.get("voice", "").strip() or " ", w)
+        d = dur_of(w)
         spans.append((t, t + d)); t += d
-    if spans:
-        spans[-1] = (spans[-1][0], total)
-    return wav, spans, total
+        parts.append(w)
+    lst = os.path.join(workdir, "alist.txt")
+    with open(lst, "w") as f:
+        for p in parts:
+            f.write(f"file '{p}'\n")
+    full = os.path.join(workdir, "full.wav")
+    run(["ffmpeg","-y","-loglevel","error","-f","concat","-safe","0","-i",lst,"-c","copy",full])
+    total = dur_of(full)
+    return full, spans, total
 
 # ---------- Render ----------
 def build_video(script, out_path, workdir):
@@ -239,10 +285,10 @@ def build_video(script, out_path, workdir):
         end = spans[i + 1][0] if i + 1 < len(lines) else total
         events.append((start, end, ln.get("cap", ""), bool(ln.get("hide_caption"))))
     ass = os.path.join(workdir, "caps.ass")
-    build_ass(events, ass)
+    build_ass(events, ass, HANDLE, total)
 
     # Fondo dinámico (varios vídeos) o degradado de reserva
-    bgv = build_background(script, total, workdir)
+    bgv = build_background(script, total, workdir, spans)
     grad = os.path.join(ASSETS, f"bg_{script.get('bg','blue')}.jpg")
     if not os.path.exists(grad):
         grad = os.path.join(ASSETS, "bg_blue.jpg")
