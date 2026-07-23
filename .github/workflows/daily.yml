@@ -35,7 +35,7 @@ jobs:
         run: python generate.py
 
       - name: Espera aleatoria
-        run: sleep 5
+        run: sleep $((RANDOM % 1500))
 
       - name: Subir a YouTube
         env:
