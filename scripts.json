@@ -1,0 +1,624 @@
+[
+  {
+    "id": "interes-compuesto",
+    "bg": "blue",
+    "chart": "chart_interes.png",
+    "chart_lines": [
+      5,
+      6
+    ],
+    "title": "Cómo 100€ al mes se vuelven 350.000€ 🤯 #shorts",
+    "description": "El interés compuesto en 30 segundos: por qué 100 € al mes pueden convertirse en casi 350.000 € y por qué empezar pronto lo es todo.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "finanzas",
+      "interescompuesto",
+      "dinero",
+      "inversion",
+      "ahorro",
+      "educacionfinanciera"
+    ],
+    "broll": "financial charts money growth",
+    "lines": [
+      {
+        "voice": "Cien euros al mes.",
+        "cap": "100€ AL MES"
+      },
+      {
+        "voice": "En cuarenta años: casi trescientos cincuenta mil.",
+        "cap": "→ 350.000€"
+      },
+      {
+        "voice": "Y de tu bolsillo solo salieron cuarenta y ocho mil.",
+        "cap": "pusiste solo 48.000€"
+      },
+      {
+        "voice": "El resto lo hace esto:",
+        "cap": "el resto lo hace..."
+      },
+      {
+        "voice": "el interés compuesto.",
+        "cap": "INTERÉS COMPUESTO"
+      },
+      {
+        "voice": "Tu dinero genera intereses, y esos intereses generan más.",
+        "cap": "",
+        "hide_caption": true
+      },
+      {
+        "voice": "Cada año la bola crece más rápido.",
+        "cap": "",
+        "hide_caption": true
+      },
+      {
+        "voice": "¿La clave? Empezar cuanto antes.",
+        "cap": "la clave: EMPEZAR YA"
+      },
+      {
+        "voice": "Diez años tarde te cuesta la mitad del resultado.",
+        "cap": "10 años tarde = -50%"
+      },
+      {
+        "voice": "El mejor momento fue ayer.",
+        "cap": "el mejor momento fue ayer"
+      },
+      {
+        "voice": "El segundo mejor es hoy.",
+        "cap": "el segundo... HOY"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  },
+  {
+    "id": "inflacion",
+    "bg": "orange",
+    "broll": "supermarket shopping prices",
+    "title": "Tu dinero se muere en el banco 📉 #shorts",
+    "description": "La inflación explicada en 30 segundos: por qué el dinero parado pierde valor y qué hacer.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "inflacion",
+      "finanzas",
+      "dinero",
+      "ahorro",
+      "educacionfinanciera"
+    ],
+    "lines": [
+      {
+        "voice": "Tu dinero se está muriendo.",
+        "cap": "tu dinero se muere..."
+      },
+      {
+        "voice": "Y no te das cuenta.",
+        "cap": "...y no lo ves"
+      },
+      {
+        "voice": "Se llama inflación.",
+        "cap": "la INFLACIÓN"
+      },
+      {
+        "voice": "Cada año, los precios suben.",
+        "cap": "los precios suben"
+      },
+      {
+        "voice": "Con un tres por ciento anual,",
+        "cap": "con un 3% al año..."
+      },
+      {
+        "voice": "en veinticuatro años pierdes la mitad.",
+        "cap": "pierdes la mitad en 24 años"
+      },
+      {
+        "voice": "El dinero parado no está seguro.",
+        "cap": "parado NO es seguro"
+      },
+      {
+        "voice": "Está encogiendo en silencio.",
+        "cap": "encoge en silencio"
+      },
+      {
+        "voice": "Ahorrar no basta.",
+        "cap": "ahorrar no basta"
+      },
+      {
+        "voice": "Hay que hacerlo trabajar.",
+        "cap": "hazlo TRABAJAR"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  },
+  {
+    "id": "regla-50-30-20",
+    "bg": "green",
+    "broll": "budget planning desk money",
+    "title": "Así reparte su sueldo la gente que ahorra 💶 #shorts",
+    "description": "La regla 50/30/20 para repartir tu sueldo y llegar a fin de mes con margen.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "finanzaspersonales",
+      "ahorro",
+      "dinero",
+      "presupuesto",
+      "educacionfinanciera"
+    ],
+    "lines": [
+      {
+        "voice": "El noventa por ciento no sabe repartir su sueldo.",
+        "cap": "el 90% falla en esto"
+      },
+      {
+        "voice": "Usa la regla cincuenta, treinta, veinte.",
+        "cap": "regla 50/30/20"
+      },
+      {
+        "voice": "Cincuenta por ciento para lo necesario.",
+        "cap": "50% NECESIDADES"
+      },
+      {
+        "voice": "Casa, comida, facturas.",
+        "cap": "casa, comida, facturas"
+      },
+      {
+        "voice": "Treinta por ciento para tus gustos.",
+        "cap": "30% CAPRICHOS"
+      },
+      {
+        "voice": "Veinte por ciento para tu futuro.",
+        "cap": "20% TU FUTURO"
+      },
+      {
+        "voice": "Ahorro e inversión.",
+        "cap": "ahorro e inversión"
+      },
+      {
+        "voice": "El truco de verdad:",
+        "cap": "el truco:"
+      },
+      {
+        "voice": "aparta ese veinte por ciento al cobrar.",
+        "cap": "apártalo AL COBRAR"
+      },
+      {
+        "voice": "Antes de gastarlo.",
+        "cap": "antes de gastar"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  },
+  {
+    "id": "colchon-emergencia",
+    "bg": "teal",
+    "broll": "piggy bank saving coins",
+    "title": "Esto te salva de la ruina 🛟 #shorts",
+    "description": "Por qué necesitas un fondo de emergencia antes de invertir, y cuánto.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "ahorro",
+      "finanzaspersonales",
+      "dinero",
+      "fondodeemergencia",
+      "educacionfinanciera"
+    ],
+    "lines": [
+      {
+        "voice": "Esto te salva de la ruina.",
+        "cap": "te salva de la ruina"
+      },
+      {
+        "voice": "Y casi nadie lo tiene.",
+        "cap": "casi nadie lo tiene"
+      },
+      {
+        "voice": "Un colchón de emergencia.",
+        "cap": "COLCHÓN de emergencia"
+      },
+      {
+        "voice": "Dinero que no tocas.",
+        "cap": "dinero que no tocas"
+      },
+      {
+        "voice": "Solo para imprevistos de verdad.",
+        "cap": "solo imprevistos"
+      },
+      {
+        "voice": "Una avería, quedarte sin trabajo.",
+        "cap": "avería, paro..."
+      },
+      {
+        "voice": "¿Cuánto? De tres a seis meses de gastos.",
+        "cap": "de 3 a 6 meses de gastos"
+      },
+      {
+        "voice": "Sin él, cualquier golpe",
+        "cap": "sin él, un golpe..."
+      },
+      {
+        "voice": "lo pagas con deudas caras.",
+        "cap": "...lo pagas con deuda"
+      },
+      {
+        "voice": "Primero el colchón. Luego invertir.",
+        "cap": "1º colchón, 2º invertir"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  },
+  {
+    "id": "deuda-buena-mala",
+    "bg": "red",
+    "broll": "credit card payment",
+    "title": "La deuda que te hace RICO (y la que te arruina) #shorts",
+    "description": "No toda la deuda es igual. Aprende a distinguir la buena de la mala.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "deuda",
+      "finanzas",
+      "dinero",
+      "creditos",
+      "educacionfinanciera"
+    ],
+    "lines": [
+      {
+        "voice": "Hay una deuda que te hace rico.",
+        "cap": "deuda que te hace RICO"
+      },
+      {
+        "voice": "Y otra que te arruina.",
+        "cap": "y otra que te arruina"
+      },
+      {
+        "voice": "La deuda mala",
+        "cap": "deuda MALA"
+      },
+      {
+        "voice": "paga cosas que pierden valor.",
+        "cap": "cosas que pierden valor"
+      },
+      {
+        "voice": "Tarjeta, móvil a plazos.",
+        "cap": "tarjeta, plazos"
+      },
+      {
+        "voice": "La deuda buena",
+        "cap": "deuda BUENA"
+      },
+      {
+        "voice": "compra algo que sube de valor.",
+        "cap": "algo que SUBE"
+      },
+      {
+        "voice": "O que te hace ganar más.",
+        "cap": "o te hace ganar más"
+      },
+      {
+        "voice": "Formarte, un buen negocio.",
+        "cap": "formación, negocio"
+      },
+      {
+        "voice": "Pregúntate: ¿me hace rico o pobre?",
+        "cap": "¿te hace rico o pobre?"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  },
+  {
+    "id": "gasto-hormiga",
+    "bg": "purple",
+    "broll": "coffee cup cafe morning",
+    "title": "Este café te cuesta 30.000€ ☕ #shorts",
+    "description": "Los pequeños gastos diarios suman una fortuna con los años. Te lo demuestro.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "ahorro",
+      "finanzaspersonales",
+      "dinero",
+      "gastohormiga",
+      "educacionfinanciera"
+    ],
+    "lines": [
+      {
+        "voice": "Este café te cuesta treinta mil euros.",
+        "cap": "este café = 30.000€"
+      },
+      {
+        "voice": "Te lo explico.",
+        "cap": "te explico"
+      },
+      {
+        "voice": "Tres euros al día",
+        "cap": "3€ al día..."
+      },
+      {
+        "voice": "son noventa al mes.",
+        "cap": "= 90€ al mes"
+      },
+      {
+        "voice": "Más de mil al año.",
+        "cap": "+1.000€ al año"
+      },
+      {
+        "voice": "Se llama gasto hormiga.",
+        "cap": "el GASTO HORMIGA"
+      },
+      {
+        "voice": "Pequeño e invisible.",
+        "cap": "pequeño e invisible"
+      },
+      {
+        "voice": "Si lo invirtieras treinta años,",
+        "cap": "invirtiéndolo 30 años..."
+      },
+      {
+        "voice": "más de treinta mil euros.",
+        "cap": "...+30.000€"
+      },
+      {
+        "voice": "No es privarte. Es saber qué te cuesta.",
+        "cap": "sabe lo que cuesta"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  },
+  {
+    "id": "activos-pasivos",
+    "bg": "blue",
+    "broll": "city skyline business money",
+    "title": "Los ricos no compran coches, compran ESTO 🏦 #shorts",
+    "description": "La diferencia entre un activo y un pasivo separa a quien acumula dinero de quien lo pierde.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "inversion",
+      "finanzas",
+      "dinero",
+      "activos",
+      "educacionfinanciera"
+    ],
+    "lines": [
+      {
+        "voice": "Los ricos no compran coches.",
+        "cap": "los ricos NO compran lujo"
+      },
+      {
+        "voice": "Compran activos.",
+        "cap": "compran ACTIVOS"
+      },
+      {
+        "voice": "Un activo mete dinero en tu bolsillo.",
+        "cap": "activo = te DA dinero"
+      },
+      {
+        "voice": "Inversión, negocio, alquiler.",
+        "cap": "inversión, negocio, alquiler"
+      },
+      {
+        "voice": "Un pasivo hace lo contrario.",
+        "cap": "pasivo = te QUITA dinero"
+      },
+      {
+        "voice": "Coche caro, deudas, caprichos.",
+        "cap": "coche, deudas, caprichos"
+      },
+      {
+        "voice": "La mayoría compra pasivos",
+        "cap": "la mayoría compra pasivos"
+      },
+      {
+        "voice": "creyendo que suman.",
+        "cap": "creyendo que suman"
+      },
+      {
+        "voice": "El truco es simple:",
+        "cap": "el truco:"
+      },
+      {
+        "voice": "activos antes que lujos.",
+        "cap": "activos ANTES que lujos"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  },
+  {
+    "id": "interes-tarjetas",
+    "bg": "red",
+    "broll": "credit card shopping online",
+    "title": "La trampa más cara de tu tarjeta 🚨 #shorts",
+    "description": "Por qué el pago aplazado de las tarjetas es una de las deudas más caras que existen.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "tarjetas",
+      "deuda",
+      "finanzas",
+      "dinero",
+      "educacionfinanciera"
+    ],
+    "lines": [
+      {
+        "voice": "La trampa más cara que existe.",
+        "cap": "la trampa más CARA"
+      },
+      {
+        "voice": "El pago aplazado de la tarjeta.",
+        "cap": "el pago aplazado"
+      },
+      {
+        "voice": "Intereses del veinte por ciento o más.",
+        "cap": "20% de interés... o más"
+      },
+      {
+        "voice": "Debes mil euros,",
+        "cap": "debes 1.000€..."
+      },
+      {
+        "voice": "pagas doscientos solo de intereses.",
+        "cap": "...200€ solo de interés"
+      },
+      {
+        "voice": "Y si pagas el mínimo,",
+        "cap": "si pagas el mínimo..."
+      },
+      {
+        "voice": "la deuda casi no baja.",
+        "cap": "...casi no baja"
+      },
+      {
+        "voice": "Es una rueda sin fin.",
+        "cap": "una rueda sin fin"
+      },
+      {
+        "voice": "La regla de oro:",
+        "cap": "regla de oro:"
+      },
+      {
+        "voice": "paga siempre el total a fin de mes.",
+        "cap": "paga el TOTAL"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  },
+  {
+    "id": "diversificacion",
+    "bg": "green",
+    "broll": "stock market investing screen",
+    "title": "El error que te puede arruinar 🥚 #shorts",
+    "description": "Diversificar es la forma más sencilla de reducir el riesgo al invertir.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "inversion",
+      "diversificacion",
+      "finanzas",
+      "dinero",
+      "educacionfinanciera"
+    ],
+    "lines": [
+      {
+        "voice": "Este error te puede arruinar.",
+        "cap": "el error que arruina"
+      },
+      {
+        "voice": "Poner todo en una sola cosa.",
+        "cap": "TODO en una cosa"
+      },
+      {
+        "voice": "Una empresa, una cripto.",
+        "cap": "una empresa, una cripto"
+      },
+      {
+        "voice": "Si eso cae, lo pierdes todo.",
+        "cap": "si cae... lo pierdes TODO"
+      },
+      {
+        "voice": "La solución: diversificar.",
+        "cap": "DIVERSIFICA"
+      },
+      {
+        "voice": "Reparte tu dinero",
+        "cap": "reparte tu dinero"
+      },
+      {
+        "voice": "en muchas inversiones distintas.",
+        "cap": "en muchas cosas"
+      },
+      {
+        "voice": "Si una va mal,",
+        "cap": "si una va mal..."
+      },
+      {
+        "voice": "las demás te sostienen.",
+        "cap": "...las otras aguantan"
+      },
+      {
+        "voice": "No pongas todos los huevos en una cesta.",
+        "cap": "no todo en 1 cesta"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  },
+  {
+    "id": "pagate-primero",
+    "bg": "orange",
+    "broll": "saving money wallet cash",
+    "title": "El truco de dinero nº1 que nadie te enseñó 💪 #shorts",
+    "description": "Págate a ti primero: el hábito más simple y potente para construir tu ahorro.\n\n⚠️ Contenido educativo, no es asesoramiento financiero.",
+    "hashtags": [
+      "economia",
+      "ahorro",
+      "finanzaspersonales",
+      "dinero",
+      "habitos",
+      "educacionfinanciera"
+    ],
+    "lines": [
+      {
+        "voice": "El truco de dinero número uno.",
+        "cap": "el truco nº1"
+      },
+      {
+        "voice": "Que nadie te enseñó.",
+        "cap": "que nadie te enseñó"
+      },
+      {
+        "voice": "La mayoría ahorra lo que sobra.",
+        "cap": "ahorrar lo que sobra..."
+      },
+      {
+        "voice": "Y nunca sobra nada.",
+        "cap": "...nunca sobra"
+      },
+      {
+        "voice": "Hazlo al revés.",
+        "cap": "hazlo AL REVÉS"
+      },
+      {
+        "voice": "Págate a ti primero.",
+        "cap": "PÁGATE a ti primero"
+      },
+      {
+        "voice": "El día que cobras,",
+        "cap": "el día que cobras..."
+      },
+      {
+        "voice": "aparta para ahorrar.",
+        "cap": "aparta para ahorrar"
+      },
+      {
+        "voice": "Antes de gastar en nada.",
+        "cap": "antes de gastar"
+      },
+      {
+        "voice": "Automatízalo en tu banco.",
+        "cap": "AUTOMATÍZALO"
+      },
+      {
+        "voice": "Sígueme. Economía sin humo.",
+        "cap": "SÍGUEME"
+      }
+    ]
+  }
+]
