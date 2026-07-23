@@ -102,7 +102,7 @@ def cap_word_events(cap, st, en, words_per_line=3):
                 s += "\\N"
             else:
                 s += ("" if (k == 0 or toks[k-1] == "\\N") else " ") + tk
-        fad = "{\\fad(90,0)}" if i == 0 else ""
+        fad = "{\\fad(140,0)}" if i == 0 else ""
         evts.append((ws, we, fad + s))
     return evts
 
@@ -131,85 +131,126 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     with open(path,"w",encoding="utf-8") as f:
         f.write("\n".join(lines))
 
-# ---------- B-roll (Pexels, opcional y con reserva) ----------
-def get_broll(query, workdir):
-    """Descarga un vídeo vertical de Pexels si hay PEXELS_API_KEY.
-    Devuelve la ruta local o None (si no hay clave, no hay red o falla algo)."""
+# ---------- Fondo con vídeos reales (Pexels o carpeta local) ----------
+def _pexels_clips(query, n, workdir):
+    """Descarga hasta n vídeos verticales de Pexels. Lista de rutas o []."""
     key = os.environ.get("PEXELS_API_KEY")
     if not key or not query:
-        return None
+        return []
     try:
         url = ("https://api.pexels.com/videos/search?"
                + urllib.parse.urlencode({"query": query, "orientation": "portrait",
-                                         "per_page": 15, "size": "medium"}))
+                                         "per_page": 20, "size": "medium"}))
         req = urllib.request.Request(url, headers={"Authorization": key})
         with urllib.request.urlopen(req, timeout=25) as r:
             data = json.loads(r.read().decode())
         vids = data.get("videos", [])
-        if not vids:
-            return None
-        idx = datetime.date.today().timetuple().tm_yday % len(vids)
-        vid = vids[idx]
-        # elige un fichero vertical de ancho <= 1080 (o el menor disponible)
-        files = [f for f in vid.get("video_files", []) if (f.get("height") or 0) >= (f.get("width") or 0)]
-        files = files or vid.get("video_files", [])
-        files.sort(key=lambda f: abs((f.get("width") or 1080) - 1080))
-        link = files[0]["link"]
-        dst = os.path.join(workdir, "broll.mp4")
-        with urllib.request.urlopen(link, timeout=60) as r, open(dst, "wb") as f:
-            f.write(r.read())
-        if os.path.getsize(dst) > 10000:
-            print(f"[broll] usando vídeo de Pexels: {query}")
-            return dst
+        out = []
+        for j, vid in enumerate(vids[:n]):
+            files = [f for f in vid.get("video_files", [])
+                     if (f.get("height") or 0) >= (f.get("width") or 0)] or vid.get("video_files", [])
+            if not files:
+                continue
+            files.sort(key=lambda f: abs((f.get("width") or 1080) - 1080))
+            dst = os.path.join(workdir, f"src_{j}.mp4")
+            try:
+                with urllib.request.urlopen(files[0]["link"], timeout=60) as r, open(dst, "wb") as f:
+                    f.write(r.read())
+                if os.path.getsize(dst) > 10000:
+                    out.append(dst)
+            except Exception:
+                pass
+        if out:
+            print(f"[bg] {len(out)} clips de Pexels para: {query}")
+        return out
     except Exception as e:
-        sys.stderr.write(f"[broll] aviso: no se pudo usar b-roll ({e}); uso degradado.\n")
-    return None
+        sys.stderr.write(f"[bg] Pexels falló ({e}); uso degradado.\n")
+        return []
+
+def _gather_clips(script, workdir):
+    ldir = os.environ.get("LOCAL_BROLL_DIR")
+    if ldir and os.path.isdir(ldir):
+        return [os.path.join(ldir, f) for f in sorted(os.listdir(ldir))
+                if f.lower().endswith((".mp4", ".mov", ".webm", ".mkv", ".m4v"))]
+    return _pexels_clips(script.get("broll"), 8, workdir)
+
+def _norm_clip(src, dur, out):
+    run(["ffmpeg","-y","-loglevel","error","-stream_loop","-1","-t",f"{dur:.2f}","-i",src,
+         "-vf","scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30,setsar=1",
+         "-an","-c:v","libx264","-preset","veryfast","-crf","23","-pix_fmt","yuv420p", out])
+
+def build_background(script, total, workdir):
+    """Fondo dinámico: varios clips reales que se van alternando. None si no hay."""
+    srcs = _gather_clips(script, workdir)
+    if not srcs:
+        return None
+    n = max(1, min(len(srcs), int(round(total / 4.0)) or 1))   # un clip cada ~4 s
+    srcs = srcs[:n]
+    segdur = total / n
+    segs = []
+    for i, src in enumerate(srcs):
+        out = os.path.join(workdir, f"bgseg_{i}.mp4")
+        try:
+            _norm_clip(src, segdur + 0.1, out)
+            if os.path.getsize(out) > 5000:
+                segs.append(out)
+        except Exception as e:
+            sys.stderr.write(f"[bg] clip {i} no sirvió ({e})\n")
+    if not segs:
+        return None
+    lst = os.path.join(workdir, "bglist.txt")
+    with open(lst, "w") as f:
+        for s in segs:
+            f.write(f"file '{s}'\n")
+    bgv = os.path.join(workdir, "bg.mp4")
+    try:
+        run(["ffmpeg","-y","-loglevel","error","-f","concat","-safe","0","-i",lst,"-c","copy", bgv])
+        return bgv
+    except Exception as e:
+        sys.stderr.write(f"[bg] concat falló ({e})\n")
+        return None
+
+# ---------- Audio (voz continua, fluida) ----------
+def build_audio(lines, workdir):
+    text = " ".join(l["voice"].strip() for l in lines if l.get("voice"))
+    wav = os.path.join(workdir, "full.wav")
+    synth(text, wav)                       # una sola locución = fluida
+    total = dur_of(wav)
+    weights = [max(3, len(l.get("voice", ""))) for l in lines]
+    tot = sum(weights) or 1
+    spans = []; t = 0.0
+    for w in weights:
+        d = total * w / tot
+        spans.append((t, t + d)); t += d
+    if spans:
+        spans[-1] = (spans[-1][0], total)
+    return wav, spans, total
 
 # ---------- Render ----------
 def build_video(script, out_path, workdir):
     lines = script["lines"]
-    seg_wavs = []
-    events = []
-    t = 0.0
-    sil = os.path.join(workdir,"sil.wav")
-    run(["ffmpeg","-y","-loglevel","error","-f","lavfi","-i",
-         "anullsrc=r=44100:cl=stereo","-t",str(GAP),sil])
-    concat_list = os.path.join(workdir,"list.txt")
-    parts = []
-    for i, ln in enumerate(lines):
-        voice = ln["voice"]
-        cap = ln.get("cap", voice)
-        w = os.path.join(workdir,f"seg{i:02d}.wav")
-        synth(voice, w)
-        d = dur_of(w)
-        hidden = bool(ln.get("hide_caption"))
-        events.append((t, t+d+GAP*0.6, cap, hidden))
-        t += d + GAP
-        parts.append(w); parts.append(sil)
-    for p in parts:
-        concat_list  # keep ref
-    with open(concat_list,"w") as f:
-        for p in parts:
-            f.write(f"file '{p}'\n")
-    full_wav = os.path.join(workdir,"full.wav")
-    run(["ffmpeg","-y","-loglevel","error","-f","concat","-safe","0","-i",concat_list,
-         "-c","copy",full_wav])
-    total = dur_of(full_wav)
+    full_wav, spans, total = build_audio(lines, workdir)
 
-    ass = os.path.join(workdir,"caps.ass")
+    # Subtítulos CONTINUOS: cada uno se muestra hasta que empieza el siguiente
+    # (sin huecos en negro entre frases -> transición fluida).
+    events = []
+    for i, ln in enumerate(lines):
+        start = spans[i][0]
+        end = spans[i + 1][0] if i + 1 < len(lines) else total
+        events.append((start, end, ln.get("cap", ""), bool(ln.get("hide_caption"))))
+    ass = os.path.join(workdir, "caps.ass")
     build_ass(events, ass)
 
-    bg = os.path.join(ASSETS, f"bg_{script.get('bg','blue')}.jpg")
-    if not os.path.exists(bg):
-        bg = os.path.join(ASSETS,"bg_blue.jpg")
-    broll = get_broll(script.get("broll"), workdir)
+    # Fondo dinámico (varios vídeos) o degradado de reserva
+    bgv = build_background(script, total, workdir)
+    grad = os.path.join(ASSETS, f"bg_{script.get('bg','blue')}.jpg")
+    if not os.path.exists(grad):
+        grad = os.path.join(ASSETS, "bg_blue.jpg")
 
-    # gráfica opcional
     chart = script.get("chart")
     chart_path = os.path.join(ASSETS, chart) if chart else None
     has_chart = chart_path and os.path.exists(chart_path)
 
-    # música opcional
     music_file = None
     if os.path.isdir(MUSIC):
         for fn in sorted(os.listdir(MUSIC)):
@@ -217,27 +258,23 @@ def build_video(script, out_path, workdir):
                 music_file = os.path.join(MUSIC, fn); break
 
     ass_esc = ass.replace("\\","/").replace(":","\\:")
-    if broll:
-        inputs = ["-stream_loop","-1","-i",broll]
+    if bgv:
+        inputs = ["-i", bgv]
+        base_vf = ("eq=brightness=-0.05:saturation=1.12,"
+                   "drawbox=0:0:1080:1920:color=black@0.40:t=fill,"
+                   f"subtitles='{ass_esc}',setsar=1")
     else:
-        inputs = ["-loop","1","-i",bg]
+        inputs = ["-loop","1","-i", grad]
+        base_vf = (f"scale=1188:2112,zoompan=z='min(1.0+0.00045*in,1.12)':d=1:"
+                   f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920:fps=30,"
+                   f"subtitles='{ass_esc}',setsar=1")
     if has_chart:
         inputs += ["-loop","1","-i",chart_path]
-    inputs += ["-i",full_wav]
+    inputs += ["-i", full_wav]
     if music_file:
         inputs += ["-stream_loop","-1","-i",music_file]
 
-    if broll:
-        vf = ("scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
-              "eq=brightness=-0.06:saturation=1.08,"
-              "drawbox=0:0:1080:1920:color=black@0.42:t=fill,"
-              f"subtitles='{ass_esc}',setsar=1,fps=30")
-    else:
-        vf = (f"scale=1188:2112,zoompan=z='min(1.0+0.00045*in,1.12)':d=1:"
-              f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920:fps=30,"
-              f"subtitles='{ass_esc}',setsar=1")
-
-    fc = f"[0:v]{vf}[base];"
+    fc = f"[0:v]{base_vf}[base];"
     if has_chart:
         cl = script.get("chart_lines")
         if cl:
@@ -245,16 +282,14 @@ def build_video(script, out_path, workdir):
             i1 = max(0, min(int(cl[1]), len(events)-1))
             cs, ce = events[i0][0], events[i1][1]
         else:
-            c = script.get("chart_window",[0,total])
-            cs, ce = float(c[0]), float(c[1])
+            c = script.get("chart_window",[0,total]); cs, ce = float(c[0]), float(c[1])
         fc += (f"[1:v]scale=1080:1920:force_original_aspect_ratio=decrease,"
                f"pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=black,format=rgba,"
-               f"fade=in:st={cs:.2f}:d=0.4:alpha=1,fade=out:st={ce-0.4:.2f}:d=0.4:alpha=1[cv];"
+               f"fade=in:st={cs:.2f}:d=0.4:alpha=1,fade=out:st={max(cs,ce-0.4):.2f}:d=0.4:alpha=1[cv];"
                f"[base][cv]overlay=0:0:enable='between(t,{cs:.2f},{ce:.2f})'[v]")
     else:
         fc += "[base]null[v]"
 
-    # audio
     ai_voice = 2 if has_chart else 1
     if music_file:
         ai_mus = ai_voice + 1
