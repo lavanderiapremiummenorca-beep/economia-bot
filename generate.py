@@ -358,11 +358,11 @@ def pick_script(scripts, arg=None):
         for s in scripts:
             if s["id"] == arg:
                 return s
-    # rotación por día del año (sin estado): un guion distinto cada día,
-    # recorriendo el banco en bucle. Añade más guiones para no repetir tan seguido.
+    # un guion distinto cada día Y en cada ejecución (usa el nº de ejecución de GitHub)
     import datetime
     yday = datetime.date.today().timetuple().tm_yday
-    return scripts[yday % len(scripts)]
+    run = int(os.environ.get("GITHUB_RUN_NUMBER", "0") or "0")
+    return scripts[(yday + run) % len(scripts)]
 
 def main():
     with open(os.path.join(BASE,"scripts.json"),encoding="utf-8") as f:
