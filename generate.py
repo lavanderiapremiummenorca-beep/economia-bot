@@ -179,12 +179,54 @@ def _pexels_clips(query, n, workdir):
         sys.stderr.write(f"[bg] Pexels falló ({e}); uso degradado.\n")
         return []
 
+def _pixabay_clips(query, n, workdir):
+    """Descarga hasta n vídeos de Pixabay (alternativa a Pexels). Lista o []."""
+    key = os.environ.get("PIXABAY_API_KEY")
+    if not key or not query:
+        return []
+    try:
+        url = "https://pixabay.com/api/videos/?" + urllib.parse.urlencode(
+            {"key": key, "q": query, "per_page": max(3, min(n * 2, 20)), "safesearch": "true"})
+        req = urllib.request.Request(url, headers={"User-Agent": "economia-bot/1.0"})
+        with urllib.request.urlopen(req, timeout=25) as r:
+            data = json.loads(r.read().decode())
+        hits = data.get("hits", [])
+        out = []
+        for j, h in enumerate(hits[:n]):
+            v = h.get("videos", {})
+            f = v.get("medium") or v.get("large") or v.get("small") or v.get("tiny")
+            if not f or not f.get("url"):
+                continue
+            dst = os.path.join(workdir, f"src_{j}.mp4")
+            try:
+                rq = urllib.request.Request(f["url"], headers={"User-Agent": "economia-bot/1.0"})
+                with urllib.request.urlopen(rq, timeout=60) as r, open(dst, "wb") as fo:
+                    fo.write(r.read())
+                if os.path.getsize(dst) > 10000:
+                    out.append(dst)
+            except Exception:
+                pass
+        if out:
+            print(f"[bg] {len(out)} clips de Pixabay para: {query}")
+        return out
+    except Exception as e:
+        sys.stderr.write(f"[bg] Pixabay falló ({e})\n")
+        return []
+
+def _clips_for_query(q, n, workdir):
+    # prioriza Pixabay si hay clave; si no, Pexels
+    if os.environ.get("PIXABAY_API_KEY"):
+        cs = _pixabay_clips(q, n, workdir)
+        if cs:
+            return cs
+    return _pexels_clips(q, n, workdir)
+
 def _gather_clips(script, workdir):
     ldir = os.environ.get("LOCAL_BROLL_DIR")
     if ldir and os.path.isdir(ldir):
         return [os.path.join(ldir, f) for f in sorted(os.listdir(ldir))
                 if f.lower().endswith((".mp4", ".mov", ".webm", ".mkv", ".m4v"))]
-    return _pexels_clips(script.get("broll"), 8, workdir)
+    return _clips_for_query(script.get("broll"), 8, workdir)
 
 def _norm_clip(src, dur, out):
     # recorte a vertical + push-in suave (zoom que da movimiento y "punch" en cada corte)
@@ -209,9 +251,10 @@ def build_background(script, total, workdir, spans):
     # fuentes: si el guion trae broll_list (una consulta por idea), un clip por consulta
     srcs = []
     blist = script.get("broll_list")
-    if blist and os.environ.get("PEXELS_API_KEY") and not os.environ.get("LOCAL_BROLL_DIR"):
+    if blist and not os.environ.get("LOCAL_BROLL_DIR") and (
+            os.environ.get("PEXELS_API_KEY") or os.environ.get("PIXABAY_API_KEY")):
         for q in blist:
-            cs = _pexels_clips(q, 1, workdir)
+            cs = _clips_for_query(q, 1, workdir)
             if cs:
                 srcs.append(cs[0])
     if not srcs:
