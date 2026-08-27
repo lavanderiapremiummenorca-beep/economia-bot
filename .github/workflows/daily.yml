@@ -30,7 +30,12 @@ jobs:
 
       - name: Generar el vídeo del día (voz neuronal edge-tts)
         env:
-          TTS_ENGINE: edge
+          TTS_ENGINE: eleven
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVEN_VOICE_ID: "PEGA_AQUI_EL_VOICE_ID"
+          ELEVEN_MODEL: eleven_flash_v2_5
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          AI_CLIPS: "2"
           EDGE_VOICE: es-ES-AlvaroNeural
           # Opcionales: si añades estos secrets, se activan solos.
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # IA escribe el guion (PROMPT-MAESTRO.md)
