@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Escribe el guion del día con IA (Gemini) siguiendo PROMPT-MAESTRO.md.
+Escribe el guion del dia con IA (Gemini) siguiendo PROMPT-MAESTRO.md.
 Se activa solo si existe GEMINI_API_KEY. Si falla algo, devuelve None
 y el sistema usa el banco de guiones (scripts.json) como reserva.
 Devuelve un dict con el mismo formato que usa generate.py.
@@ -15,51 +15,57 @@ _MODEL_CANDIDATES = [
     "gemini-2.5-flash-lite", "gemini-2.0-flash-001", "gemini-1.5-flash",
 ]
 BGS = ["blue", "green", "orange", "purple", "teal", "red"]
-
-# Temas y formatos que rotan por día para no repetir (anti "contenido inauténtico")
+# AMBITOS del dinero que rotan por dia (se usan como "a evitar hoy" para forzar variedad)
 TEMAS = [
-    "el interés compuesto", "la inflación y por qué el dinero pierde valor",
-    "el fondo de emergencia", "deuda buena vs deuda mala", "el gasto hormiga",
-    "activos vs pasivos", "el peligro del pago aplazado de la tarjeta",
-    "la diversificación al invertir", "pagarse a uno mismo primero",
-    "la regla 50/30/20", "el coste de oportunidad", "qué es un ETF (fácil)",
-    "por qué empezar a invertir pronto", "presupuesto mensual sencillo",
-    "cómo funcionan los impuestos básicos", "ahorrar en pequeñas fugas de dinero",
-    "la mentalidad de los que ahorran", "qué es la rentabilidad",
-    "por qué no hay que endeudarse para aparentar", "la magia de automatizar el ahorro",
+    "la inflacion", "los bancos", "el ahorro", "las deudas", "el interes compuesto",
+    "el precio de la vivienda", "las criptomonedas", "la psicologia del gasto",
+    "los impuestos", "la jubilacion", "el dinero y la felicidad", "las burbujas economicas",
+    "el credito y las tarjetas", "el marketing que te hace gastar", "los ricos y la clase media",
+    "el valor del dinero con el tiempo", "las suscripciones que no usas",
 ]
+# ESTILOS que se intercalan cada dia (asombro y aspiracion, no consejo)
 FORMATOS = [
-    "mito vs realidad", "un dato sorprendente con ejemplo numérico",
-    "el error común que casi todos cometen", "top 3 rápido",
-    "esto no te lo cuentan", "comparativa antes vs después",
-    "una pregunta que pica la curiosidad y su respuesta",
+    "por que sube el precio de algo cotidiano, explicado con asombro",
+    "como piensan los ricos con el dinero (mentalidad, no consejo)",
+    "el truco psicologico que te hace gastar de mas sin darte cuenta",
+    "la historia sorprendente detras de un billete, una crisis o una moneda",
+    "el dato economico que asusta, contado con intriga",
+    "como funciona DE VERDAD algo del dinero que todos usamos",
 ]
 
 SCHEMA_INSTRUCCION = """
-Devuelve ÚNICAMENTE un JSON válido (sin texto alrededor) con esta forma exacta:
+Devuelve UNICAMENTE un JSON valido (sin texto alrededor) con esta forma exacta:
 {
-  "title": "título honesto y con gancho, máx 90 caracteres, puede llevar 1 emoji y #shorts",
-  "description": "1-2 frases de valor + CTA. Incluye SIEMPRE al final: '⚠️ Contenido educativo, no es asesoramiento financiero.'",
-  "hashtags": ["Shorts", "economia", "...", "..."],  // 3 a 5, sin '#', el primero SIEMPRE 'Shorts'
-  "bg": "uno de: blue, green, orange, purple, teal, red",
-  "broll": "2-4 palabras EN INGLÉS para buscar metraje de archivo (ej: 'money coins saving')",
-  "ai_disclosure": false,  // true solo si el contenido simula algo real que pueda confundir
+  "title": "titulo intrigante y fiel, max 90 caracteres, puede llevar 1 emoji y #shorts",
+  "description": "1-2 frases que despierten curiosidad. Anade al final: 'Contenido divulgativo, no es consejo financiero.'",
+  "hashtags": ["Shorts", "economia", "dinero", "finanzas"],  // 3 a 5, sin '#', el primero SIEMPRE 'Shorts'
+  "bg": "uno de: blue, teal, purple, green (tonos sobrios y modernos)",
+  "broll": "2-4 palabras EN INGLES de escena de dinero/ciudad (ej: 'money city finance')",
+  "broll_list": ["3 o 4 escenas EN INGLES, en orden (ej: 'stacks of coins closeup', 'city skyscrapers dusk', 'stock chart screen glow')"],
+  "ai_disclosure": false,
   "lines": [
-    {"voice": "frase corta que se narra (con números en palabras: 'cien euros', no '100')",
-     "cap": "subtítulo MUY corto en pantalla (2-4 palabras, puede llevar cifras: '100€')"}
+    {"voice": "frase corta y clara (numeros en palabras: 'mil euros', no '1000')",
+     "cap": "subtitulo MUY corto en pantalla (2-4 palabras, puede llevar cifras)"}
   ]
 }
-Reglas del guion:
-- Entre 10 y 13 líneas. Cada 'voice' es una frase corta y natural (el vídeo debe durar 20-40 s).
-- La PRIMERA línea es el gancho: sin saludos ni intro, engancha en el primer segundo.
-- La ÚLTIMA línea es el CTA: invita a seguir ("Sígueme para más economía sin humo") o a comentar.
-- 'cap' nunca lleva emojis (la fuente no los dibuja). 'voice' escribe los números con letras.
-- Español de España, cercano y claro. Aporta un dato o ejemplo concreto.
+Reglas del guion (formato 'Lo que el dinero esconde'):
+- Entre 8 y 11 lineas. Explica UNA idea del dinero con asombro y aspiracion (el video dura 30-45 s).
+- NO ES UNA LISTA NI UN CONSEJO: prohibido 'sabias que', 'top 3', y prohibido recomendar inversiones o decir a la gente que hacer con su dinero. Se revela como funciona algo, no se aconseja.
+- RIGOR: datos ciertos y generales; nada de promesas de hacerse rico ni recomendaciones concretas de inversion.
+- APERTURA (linea 1, VARIADA cada dia, nunca identica a la de ayer): un gancho de curiosidad sobre el dinero. Ej: 'Nadie te explica esto del dinero, y lo cambia todo.'
+- CIERRE (ultima linea, VARIADO cada dia): remata con una idea que invite a pensar. Ej: 'El dinero funciona asi. Lo sabias?'
+- Tono divulgativo, con autoridad e intriga. 'cap' sin emojis. 'voice' con numeros en letras.
+- Espanol de Espana. NUNCA consejo financiero personalizado.
 """
+def _run_seed():
+    try:
+        return int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+    except ValueError:
+        return 0
 
-def _pick(lst):
+def _pick(lst, salt=0):
     y = datetime.date.today().timetuple().tm_yday
-    return lst[y % len(lst)]
+    return lst[(y + _run_seed() + salt) % len(lst)]
 
 def _list_models(key):
     """Pregunta a Google que modelos existen de verdad para esta clave."""
@@ -120,9 +126,9 @@ def _call_gemini(prompt, key):
     raise RuntimeError(f"ningun modelo Gemini respondio: {last}")
 
 def _validate(s):
-    assert isinstance(s.get("lines"), list) and 6 <= len(s["lines"]) <= 16, "líneas fuera de rango"
+    assert isinstance(s.get("lines"), list) and 6 <= len(s["lines"]) <= 16, "lineas fuera de rango"
     for ln in s["lines"]:
-        assert ln.get("voice"), "línea sin voz"
+        assert ln.get("voice"), "linea sin voz"
         ln.setdefault("cap", "")
     s.setdefault("bg", "blue")
     if s["bg"] not in BGS:
@@ -131,8 +137,8 @@ def _validate(s):
     if not hs or hs[0].lower() != "shorts":
         hs = ["Shorts"] + [h for h in hs if h.lower() != "shorts"]
     s["hashtags"] = hs[:5]
-    assert s.get("title"), "sin título"
-    s.setdefault("description", "⚠️ Contenido educativo, no es asesoramiento financiero.")
+    assert s.get("title"), "sin titulo"
+    s.setdefault("description", "Lo que nadie te explica del dinero. Contenido divulgativo, no es consejo financiero.")
     s["id"] = "ia-" + datetime.date.today().isoformat()
     s.pop("chart", None)
     return s
@@ -144,20 +150,19 @@ def generate():
     try:
         master = open(os.path.join(BASE, "PROMPT-MAESTRO.md"), encoding="utf-8").read()
     except Exception:
-        master = "Eres un productor experto de YouTube Shorts de economía en español."
+        master = "Eres un divulgador de economia para YouTube Shorts en espanol que revela como funciona el dinero con asombro, sin dar consejo financiero."
     formato = random.choice(FORMATOS)
     hoy = datetime.date.today().isoformat()
     # Usamos TEMAS solo como "lo obvio a EVITAR", para empujar novedad
     evitar = ", ".join(random.sample(TEMAS, min(6, len(TEMAS)))) if TEMAS else ""
+    seed = _run_seed()
     prompt = (master
               + f"\n\n---\nTAREA DE HOY ({hoy}):\n"
-              + "ELIGE TU MISMO un tema NUEVO, especifico y original dentro de la tematica "
-                "de ESTE canal (segun las instrucciones de arriba). Sorprendeme con un angulo "
-                "fresco y concreto; evita los topicos mas manidos y ya vistos.\n"
-              + (f"Para forzar variedad, HOY NO trates sobre estos (elige algo distinto): {evitar}.\n" if evitar else "")
-              + f"Desarrollalo con este enfoque/formato: {formato}.\n"
-              + "Debe ser un tema DISTINTO cada dia; se original.\n"
-              + "Cumple TODAS las reglas de arriba (cumplimiento primero, luego viralidad).\n"
+              + "REVELA algo sorprendente sobre el dinero o la economia, con asombro y "
+                "aspiracion. Elige tu mismo el tema; nada de aconsejar que hacer con el dinero.\n"
+              + (f"Para forzar variedad, HOY evita estos ambitos (elige otro): {evitar}.\n" if evitar else "")
+              + f"Desarrollalo con este ESTILO de hoy: {formato}.\n"
+              + "Apertura y cierre VARIADOS (nunca los de ayer); titulo y descripcion UNICOS de hoy. Que HOY se note claramente distinto a cualquier dia anterior. Divulgacion con intriga, NO consejo financiero.\n"
               + SCHEMA_INSTRUCCION)
     try:
         raw = _call_gemini(prompt, key)
@@ -165,7 +170,7 @@ def generate():
         s = _validate(s)
         return s
     except Exception as e:
-        sys.stderr.write(f"[ai] no se pudo generar con IA ({e}); se usará el banco.\n")
+        sys.stderr.write(f"[ai] no se pudo generar con IA ({e}); se usara el banco.\n")
         return None
 
 if __name__ == "__main__":
